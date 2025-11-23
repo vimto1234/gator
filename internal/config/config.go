@@ -31,13 +31,15 @@ func Read() (Config, error) {
 		return config, err
 	}
 
-	dat, err := os.ReadFile(pathToConfig)
+	file, err := os.Open(pathToConfig)
 	if err != nil {
 		return config, err
 	}
 
-	if err := json.Unmarshal(dat, &config); err != nil {
-		return config, nil
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&config)
+	if err != nil {
+		return Config{}, err
 	}
 
 	return config, nil
@@ -45,24 +47,30 @@ func Read() (Config, error) {
 
 func (c *Config) SetUser(username string) error {
 	c.CurrentUserName = username
+	err := write(*c)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
-	pathToConfig, err := getPathToConfig()
+func write(cfg Config) error {
+	fullPath, err := getPathToConfig()
 	if err != nil {
 		return err
 	}
 
-	jsonData, err := json.Marshal(c)
+	file, err := os.Create(fullPath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	err = encoder.Encode(cfg)
 	if err != nil {
 		return err
 	}
 
-	fi, err := os.Open(pathToConfig)
-	if err != nil {
-		return err
-	}
-
-	defer fi.Close()
-
-	fi.Write(jsonData)
 	return nil
 }
