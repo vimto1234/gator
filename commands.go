@@ -119,3 +119,16 @@ func handlerGetAllUsers(s *state, cmd command) error {
 
 	return nil
 }
+
+func handlerAgg(s *state, cmd command) error {
+
+	address := "https://www.wagslane.dev/index.xml"
+
+	rssFeed, err := fetchFeed(context.Background(), address)
+	if err != nil {
+		return err
+	}
+
+	fmt.Print(rssFeed)
+	return nil
+}
