@@ -135,7 +135,7 @@ func handlerAgg(s *state, cmd command) error {
 
 func handlerAddFeed(s *state, cmd command) error {
 	if len(cmd.args) != 2 {
-		return fmt.Errorf("register command expects 2 args")
+		return fmt.Errorf("add feed command expects 2 args")
 	}
 
 	newFeedName := cmd.args[0]
@@ -162,7 +162,27 @@ func handlerAddFeed(s *state, cmd command) error {
 		return err
 	}
 
-	fmt.Print(createdFeed)
+	fmt.Printf("Added feed :%v", createdFeed.Name)
+
+	return nil
+}
+
+func handlerFeeds(s *state, cmd command) error {
+	if len(cmd.args) != 0 {
+		return fmt.Errorf("feeds command expects no args")
+	}
+
+	allFeeds, err := s.db.GetFeeds(context.Background())
+
+	if err != nil {
+		return err
+	}
+
+	for _, user := range allFeeds {
+		fmt.Printf("%v\n", user.Name)
+		fmt.Printf(" *%v\n", user.Url)
+		fmt.Printf(" *%v\n", user.Username)
+	}
 
 	return nil
 }
