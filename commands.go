@@ -238,11 +238,44 @@ func handlerFollowing(s *state, cmd command, user database.User) error {
 		return err
 	}
 
+	if len(feeds) == 0 {
+		fmt.Printf("%v is not following any feeds \n", user.Name)
+	}
+
 	fmt.Printf("%v is following the below feeds \n", user.Name)
 
 	for _, feed := range feeds {
 		println(feed.FeedsName)
 	}
+
+	return nil
+}
+
+func handlerUnFollow(s *state, cmd command, user database.User) error {
+	if len(cmd.args) != 1 {
+		return fmt.Errorf("feeds command expects one arg")
+	}
+
+	feedURL := cmd.args[0]
+
+	feed, err := s.db.GetFeedbyURL(context.Background(), feedURL)
+
+	if err != nil {
+		return err
+	}
+
+	unFollowParams := database.UnFollowByURLAndUsernameParams{
+		UserID: user.ID,
+		FeedID: feed.ID,
+	}
+
+	err = s.db.UnFollowByURLAndUsername(context.Background(), unFollowParams)
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%v has unfollowed %v\n", user.Name, feed.Name)
 
 	return nil
 }

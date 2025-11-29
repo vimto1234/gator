@@ -45,3 +45,7 @@ SELECT users.name AS user_name, feeds.name AS feeds_name FROM user_feeds_link
 INNER JOIN users on users.id = user_feeds_link.user_id
 INNER JOIN feeds on feeds.id = user_feeds_link.feed_id
 WHERE user_feeds_link.user_id = $1;
+
+-- name: UnFollowByURLAndUsername :exec
+DELETE FROM user_feeds_link 
+WHERE user_feeds_link.user_id = $1 AND user_feeds_link.feed_id = $2;
