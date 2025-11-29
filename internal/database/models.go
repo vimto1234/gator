@@ -25,3 +25,11 @@ type User struct {
 	UpdatedAt time.Time
 	Name      string
 }
+
+type UserFeedsLink struct {
+	ID        uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	UserID    uuid.UUID
+	FeedID    uuid.UUID
+}
