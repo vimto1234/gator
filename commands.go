@@ -38,8 +38,9 @@ func (c *commands) register(name string, f func(*state, command) error) {
 }
 
 func handlerLogin(s *state, cmd command) error {
+
 	if len(cmd.args) == 0 {
-		return fmt.Errorf("login command expects 1 arg")
+		return fmt.Errorf(commandExpectsOneArg, "login")
 	}
 
 	loggedInName := cmd.args[0]
@@ -59,7 +60,7 @@ func handlerLogin(s *state, cmd command) error {
 
 func handlerRegister(s *state, cmd command) error {
 	if len(cmd.args) == 0 {
-		return fmt.Errorf("register command expects 1 arg")
+		return fmt.Errorf(commandExpectsOneArg, "register")
 	}
 
 	newUserName := cmd.args[0]
@@ -92,6 +93,10 @@ func handlerRegister(s *state, cmd command) error {
 
 func handlerClear(s *state, cmd command) error {
 
+	if len(cmd.args) != 0 {
+		return fmt.Errorf(commandExpectsNoArgs, "reset")
+	}
+
 	err := s.db.ClearUsers(context.Background())
 
 	if err != nil {
@@ -102,6 +107,10 @@ func handlerClear(s *state, cmd command) error {
 }
 
 func handlerGetAllUsers(s *state, cmd command) error {
+
+	if len(cmd.args) != 0 {
+		return fmt.Errorf(commandExpectsNoArgs, "users")
+	}
 
 	allUsers, err := s.db.FetchUsers(context.Background())
 
@@ -122,6 +131,10 @@ func handlerGetAllUsers(s *state, cmd command) error {
 
 func handlerAgg(s *state, cmd command) error {
 
+	if len(cmd.args) != 0 {
+		return fmt.Errorf(commandExpectsNoArgs, "agg")
+	}
+
 	address := "https://www.wagslane.dev/index.xml"
 
 	rssFeed, err := fetchFeed(context.Background(), address)
@@ -135,7 +148,7 @@ func handlerAgg(s *state, cmd command) error {
 
 func handlerAddFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 2 {
-		return fmt.Errorf("add feed command expects 2 args")
+		return fmt.Errorf(commandExpectsTwoArgs, "addfeed")
 	}
 
 	newFeedName := cmd.args[0]
@@ -177,7 +190,7 @@ func handlerAddFeed(s *state, cmd command, user database.User) error {
 
 func handlerFeeds(s *state, cmd command) error {
 	if len(cmd.args) != 0 {
-		return fmt.Errorf("feeds command expects no args")
+		return fmt.Errorf(commandExpectsNoArgs, "feeds")
 	}
 
 	allFeeds, err := s.db.GetFeeds(context.Background())
@@ -197,7 +210,7 @@ func handlerFeeds(s *state, cmd command) error {
 
 func handlerFollow(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 1 {
-		return fmt.Errorf("feeds command expects one arg")
+		return fmt.Errorf(commandExpectsOneArg, "follow")
 	}
 
 	feedURL := cmd.args[0]
@@ -229,7 +242,7 @@ func handlerFollow(s *state, cmd command, user database.User) error {
 
 func handlerFollowing(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 0 {
-		return fmt.Errorf("feeds command expects no arg")
+		return fmt.Errorf(commandExpectsNoArgs, "following")
 	}
 
 	feeds, err := s.db.GetAllFeedsUserFollows(context.Background(), user.ID)
@@ -253,7 +266,7 @@ func handlerFollowing(s *state, cmd command, user database.User) error {
 
 func handlerUnFollow(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 1 {
-		return fmt.Errorf("feeds command expects one arg")
+		return fmt.Errorf(commandExpectsOneArg, "unfollow")
 	}
 
 	feedURL := cmd.args[0]
