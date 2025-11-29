@@ -133,19 +133,13 @@ func handlerAgg(s *state, cmd command) error {
 	return nil
 }
 
-func handlerAddFeed(s *state, cmd command) error {
+func handlerAddFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 2 {
 		return fmt.Errorf("add feed command expects 2 args")
 	}
 
 	newFeedName := cmd.args[0]
 	newFeedURL := cmd.args[1]
-
-	user, err := s.db.GetUser(context.Background(), s.configP.CurrentUserName)
-
-	if err != nil {
-		return err
-	}
 
 	newFeed := database.CreateFeedParams{
 		ID:        uuid.New(),
@@ -176,7 +170,7 @@ func handlerAddFeed(s *state, cmd command) error {
 		return err
 	}
 
-	fmt.Printf("Added feed :%v", createdFeed.Name)
+	fmt.Printf("Added feed :%v\n", createdFeed.Name)
 
 	return nil
 }
@@ -201,7 +195,7 @@ func handlerFeeds(s *state, cmd command) error {
 	return nil
 }
 
-func handlerFollow(s *state, cmd command) error {
+func handlerFollow(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 1 {
 		return fmt.Errorf("feeds command expects one arg")
 	}
@@ -209,12 +203,6 @@ func handlerFollow(s *state, cmd command) error {
 	feedURL := cmd.args[0]
 
 	feed, err := s.db.GetFeedbyURL(context.Background(), feedURL)
-
-	if err != nil {
-		return err
-	}
-
-	user, err := s.db.GetUser(context.Background(), s.configP.CurrentUserName)
 
 	if err != nil {
 		return err
@@ -234,20 +222,14 @@ func handlerFollow(s *state, cmd command) error {
 		return err
 	}
 
-	fmt.Printf("Added feed to user, name :%v, username:%v", addedFollowFeed.FeedName, addedFollowFeed.UserName)
+	fmt.Printf("Added feed to user, name :%v, username:%v\n", addedFollowFeed.FeedName, addedFollowFeed.UserName)
 
 	return nil
 }
 
-func handlerFollowing(s *state, cmd command) error {
+func handlerFollowing(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 0 {
 		return fmt.Errorf("feeds command expects no arg")
-	}
-
-	user, err := s.db.GetUser(context.Background(), s.configP.CurrentUserName)
-
-	if err != nil {
-		return err
 	}
 
 	feeds, err := s.db.GetAllFeedsUserFollows(context.Background(), user.ID)
