@@ -131,19 +131,29 @@ func handlerGetAllUsers(s *state, cmd command) error {
 
 func handlerAgg(s *state, cmd command) error {
 
-	if len(cmd.args) != 0 {
-		return fmt.Errorf(commandExpectsNoArgs, "agg")
+	if len(cmd.args) != 1 {
+		return fmt.Errorf(commandExpectsOneArg, "agg")
 	}
 
-	address := "https://www.wagslane.dev/index.xml"
+	interval := cmd.args[0]
 
-	rssFeed, err := fetchFeed(context.Background(), address)
+	parsedInterval, err := time.ParseDuration(interval)
 	if err != nil {
 		return err
 	}
 
-	fmt.Print(rssFeed)
-	return nil
+	minInterval, _ := time.ParseDuration(minTimeString)
+
+	if parsedInterval < minInterval {
+		return fmt.Errorf("time is less than the minimum (%v)", minTimeString)
+	}
+
+	fmt.Printf("Collecting feed every %v\n", parsedInterval)
+
+	ticker := time.NewTicker(parsedInterval)
+	for ; ; <-ticker.C {
+		scrapeFeeds(s)
+	}
 }
 
 func handlerAddFeed(s *state, cmd command, user database.User) error {
